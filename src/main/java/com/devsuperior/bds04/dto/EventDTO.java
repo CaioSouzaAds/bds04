@@ -3,36 +3,46 @@ package com.devsuperior.bds04.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import com.devsuperior.bds04.entities.Event;
 
 public class EventDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private Long id;
-	private String name;
-	private LocalDate date;
-	private String url;
-	private Long cityId;
-	
-	public EventDTO() {
-	}
+private Long id;
+    
+    @NotBlank(message = "Name cannot be empty")
+    private String name;
+    
+    @FutureOrPresent(message = "Date cannot be in the past")
+    private LocalDate date;
+    
+    private String url;
+    
+    @NotNull(message = "City cannot be null")
+    private Long cityId;
 
-	public EventDTO(Long id, String name, LocalDate date, String url, Long cityId) {
-		this.id = id;
-		this.name = name;
-		this.date = date;
-		this.url = url;
-		this.cityId = cityId;
-	}
-	
-	public EventDTO(Event entity) {
-		id = entity.getId();
-		name = entity.getName();
-		date = entity.getDate();
-		url = entity.getUrl();
-		cityId = entity.getCity().getId();
-	}
+    public EventDTO() {
+    }
 
+    public EventDTO(Long id, String name, LocalDate date, String url, Long cityId) {
+        this.id = id;
+        this.name = name;
+        this.date = date;
+        this.url = url;
+        this.cityId = cityId;
+    }
+
+    public EventDTO(Event entity) {
+        id = entity.getId();
+        name = entity.getName();
+        date = entity.getDate();
+        url = entity.getUrl();
+        cityId = entity.getCity().getId();
+    }
 	public Long getId() {
 		return id;
 	}
