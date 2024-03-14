@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.devsuperior.bds04.dto.CityDTO;
@@ -17,7 +18,7 @@ public class CityService {
     private CityRepository repository;
 	
 	public List<CityDTO> findAll() {
-        List<City> list = repository.findAll(); 
+        List<City> list = repository.findAll(Sort.by("name")); 
         
         return list.stream().map(x -> new CityDTO(x)).collect(Collectors.toList());
     }
@@ -25,8 +26,9 @@ public class CityService {
 
 	
 	public CityDTO insert(CityDTO dto) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+        City city = new City();
+        city.setName(dto.getName());
+        city = repository.save(city);
+        return new CityDTO(city);
+    }
 }

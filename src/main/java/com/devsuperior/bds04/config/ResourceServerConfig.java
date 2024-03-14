@@ -33,34 +33,33 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 	@Autowired
 	private JwtTokenStore tokenStore;
 	
-	private static final String[] PUBLIC = { "/oauth/token", "/h2-console/**", "/cities/**", "/events/**"  };
-	
-	private static final String[] OPERATOR_OR_ADMIN = { "/products/**", "/categories/**" };
-	
-	private static final String[] ADMIN = { "/users/**" };	
+	 // Endpoints que devem ser públicos
+    private static final String[] PUBLIC = { "/oauth/token", "/h2-console/**" };
 
-	@Override
-	public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-		resources.tokenStore(tokenStore);
-	}
+    // Endpoints GET públicos para /cities e /events
+    private static final String[] GET_PUBLIC = { "/cities/**", "/events/**" };
 
-	@Override
-	public void configure(HttpSecurity http) throws Exception {
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        resources.tokenStore(tokenStore);
+    }
 
-		// H2
-		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
-			http.headers().frameOptions().disable();
-		}
-		
-		http.authorizeRequests()
-		.antMatchers(PUBLIC).permitAll()
-		.antMatchers(HttpMethod.GET, OPERATOR_OR_ADMIN).permitAll()
-		.antMatchers(OPERATOR_OR_ADMIN).hasAnyRole("OPERATOR", "ADMIN")
-		.antMatchers(ADMIN).hasRole("ADMIN")
-		.anyRequest().authenticated();
-		
-		http.cors().configurationSource(corsConfigurationSource());
-	}
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        // Configuração específica para o H2 Console em perfil de teste
+        if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
+            http.headers().frameOptions().disable();
+        }
+
+        http.authorizeRequests()
+            .antMatchers(PUBLIC).permitAll() // Permite acesso público aos endpoints definidos em PUBLIC
+            .antMatchers(HttpMethod.GET, GET_PUBLIC).permitAll() // Permite GET público para /cities e /events
+            .antMatchers(HttpMethod.POST, "/events/**").hasAnyRole("ADMIN", "CLIENT") // Requer role ADMIN ou CLIENT para POST em /events
+            .antMatchers("/cities/**").hasRole("ADMIN") // Restringe todos os métodos em /cities para ADMIN, exceto GET já permitido
+            .anyRequest().hasRole("ADMIN"); // Todos os demais endpoints requerem login de ADMIN
+
+        http.cors().configurationSource(corsConfigurationSource());
+    }
 	
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
