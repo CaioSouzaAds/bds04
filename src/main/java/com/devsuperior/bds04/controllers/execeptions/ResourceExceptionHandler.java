@@ -30,4 +30,17 @@ public class ResourceExceptionHandler {
 
 		return ResponseEntity.status(status).body(err);
 	}
+
+	@ExceptionHandler(CityNotFoundException.class)
+	public ResponseEntity<StandardError> cityNotFound(CityNotFoundException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		StandardError err = new StandardError();
+		err.setTimestamp(Instant.now());
+		err.setStatus(status.value());
+		err.setError("City not found");
+		err.setMessage(e.getMessage());
+		err.setPath(request.getRequestURI());
+
+		return ResponseEntity.status(status).body(err);
+	}
 }
